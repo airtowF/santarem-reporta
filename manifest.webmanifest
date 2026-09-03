@@ -1,0 +1,19 @@
+{
+  "name": "Santarém Reporta",
+  "short_name": "Reporta",
+  "description": "Denúncias urbanas de Santarém-PA",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1b5e3b",
+  "theme_color": "#1b5e3b",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

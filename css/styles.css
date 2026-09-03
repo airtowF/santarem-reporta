@@ -1,0 +1,162 @@
+:root {
+  --verde: #1b5e3b;
+  --verde-escuro: #123d27;
+  --verde-claro: #e8f5ee;
+  --rio: #0e7490;
+  --rio-escuro: #0b5c72;
+  --areia: #f7f4ef;
+  --papel: #ffffff;
+  --texto: #1c1917;
+  --texto-suave: #57534e;
+  --linha: #e7e5e4;
+  --alerta: #c2410c;
+  --ok: #15803d;
+  --analise: #a16207;
+  --andamento: #1d4ed8;
+  --sombra: 0 10px 30px rgba(18, 61, 39, 0.08);
+  --raio: 16px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--areia);
+  color: var(--texto);
+  min-height: 100vh;
+}
+
+a { color: var(--rio); text-decoration: none; }
+img { max-width: 100%; }
+
+.topo {
+  background: var(--verde);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.topo strong { letter-spacing: 0.02em; }
+.topo nav { display: flex; gap: 10px; flex-wrap: wrap; }
+.topo a, .topo button.link {
+  color: #fff;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.92;
+}
+
+.container { width: min(1100px, calc(100% - 32px)); margin: 0 auto; padding: 24px 0 48px; }
+.hero, .card {
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+.hero { padding: 36px 28px; margin-bottom: 20px; }
+.hero h1 { margin: 0 0 8px; font-size: 2rem; }
+.hero p { margin: 0 0 20px; color: var(--texto-suave); max-width: 58ch; }
+
+.acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-primario { background: var(--verde); color: #fff; }
+.btn-rio { background: var(--rio); color: #fff; }
+.btn-ghost { background: var(--verde-claro); color: var(--verde-escuro); }
+
+.grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.card { padding: 18px; }
+.card h2, .card h3 { margin-top: 0; }
+
+form { display: grid; gap: 12px; }
+label { display: grid; gap: 6px; font-size: 0.92rem; color: var(--texto-suave); }
+input, select, textarea {
+  font: inherit;
+  padding: 12px 14px;
+  border: 1px solid var(--linha);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--texto);
+}
+textarea { min-height: 110px; resize: vertical; }
+
+.mapa {
+  height: 360px;
+  border-radius: var(--raio);
+  overflow: hidden;
+  border: 1px solid var(--linha);
+  background: #dbe7e4;
+}
+
+.lista { display: grid; gap: 10px; }
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid var(--linha);
+  border-radius: 14px;
+}
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge.pendente { background: #ffedd5; color: var(--alerta); }
+.badge.em_analise { background: #fef3c7; color: var(--analise); }
+.badge.em_andamento { background: #dbeafe; color: var(--andamento); }
+.badge.resolvido { background: #dcfce7; color: var(--ok); }
+
+.protocolo {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--verde-claro);
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+}
+
+.chat-caixa {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 420px;
+  background: #fff;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+}
+.chat-msgs { padding: 16px; display: grid; gap: 10px; align-content: start; }
+.msg { max-width: 80%; padding: 10px 12px; border-radius: 12px; background: var(--verde-claro); }
+.msg.servidor { background: #e0f2fe; justify-self: end; }
+.chat-envio { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--linha); }
+.chat-envio input { flex: 1; }
+
+.aviso {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 0.92rem;
+}
+
+.rodape {
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+  padding: 24px;
+}

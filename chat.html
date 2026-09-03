@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b5e3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Reporta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/logo.svg" />
+  <title>Chat · Santarém Reporta</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topo">
+    <strong>Chat da denúncia</strong>
+    <nav><a id="voltar" href="minhas-denuncias.html">Voltar</a></nav>
+  </header>
+  <main class="container">
+    <section class="chat-caixa">
+      <div class="chat-msgs" id="msgs"></div>
+      <form class="chat-envio" id="form">
+        <input name="texto" required placeholder="Escreva uma mensagem" />
+        <button class="btn btn-primario" type="submit">Enviar</button>
+      </form>
+    </section>
+  </main>
+  <script type="module">
+    import "./js/firebase.js";
+    import { proteger, usuarioAtual } from "./js/auth.js";
+    import { ouvirMensagens, enviarMensagem } from "./js/chat.js";
+    proteger(["cidadao"], "login.html");
+    const id = new URLSearchParams(location.search).get("id");
+    document.getElementById("voltar").href = "detalhe.html?id=" + id;
+    const msgs = document.getElementById("msgs");
+    ouvirMensagens(id, (lista) => {
+      msgs.innerHTML = lista.map((m) =>
+        `<div class="msg ${m.autorPerfil}">${m.texto}</div>`
+      ).join("");
+    });
+    document.getElementById("form").onsubmit = async (e) => {
+      e.preventDefault();
+      const user = await usuarioAtual();
+      const texto = new FormData(e.target).get("texto");
+      await enviarMensagem({ denunciaId: id, autorId: user.uid, autorPerfil: "cidadao", texto });
+      e.target.reset();
+    };
+  </script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

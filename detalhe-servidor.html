@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b5e3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Reporta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/logo.svg" />
+  <title>Atendimento · Santarém Reporta</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topo">
+    <strong>Atendimento</strong>
+    <nav><a href="painel-servidor.html">Fila</a></nav>
+  </header>
+  <main class="container">
+    <section class="card" id="conteudo">Carregando…</section>
+  </main>
+  <script type="module">
+    import "./js/firebase.js";
+    import { proteger, usuarioAtual } from "./js/auth.js";
+    import { alterarStatus } from "./js/denuncias.js";
+    const { db, doc, getDoc } = window.SR;
+    proteger(["servidor", "admin"], "login-servidor.html");
+    const id = new URLSearchParams(location.search).get("id");
+    const snap = await getDoc(doc(db, "denuncias", id));
+    const d = snap.data();
+    document.getElementById("conteudo").innerHTML = `
+      <p><strong>${d.protocolo}</strong> · ${d.secretaria}</p>
+      ${d.fotoUrl ? `<img src="${d.fotoUrl}" alt="" />` : ""}
+      <p>${d.descricao}</p>
+      <form id="status">
+        <label>Status
+          <select name="status">
+            <option value="pendente">pendente</option>
+            <option value="em_analise">em_analise</option>
+            <option value="em_andamento">em_andamento</option>
+            <option value="resolvido">resolvido</option>
+          </select>
+        </label>
+        <button class="btn btn-primario" type="submit">Atualizar status</button>
+      </form>
+      <p><a class="btn btn-rio" href="chat-servidor.html?id=${id}">Abrir chat</a></p>
+    `;
+    document.querySelector("[name=status]").value = d.status;
+    document.getElementById("status").onsubmit = async (e) => {
+      e.preventDefault();
+      const user = await usuarioAtual();
+      await alterarStatus(id, new FormData(e.target).get("status"), user.uid);
+      location.reload();
+    };
+  </script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

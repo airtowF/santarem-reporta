@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b5e3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Reporta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/logo.svg" />
+  <title>Reportar · Santarém Reporta</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <header class="topo">
+    <strong>Nova denúncia</strong>
+    <nav><a href="home.html">Voltar</a></nav>
+  </header>
+  <main class="container">
+    <section class="card">
+      <form id="form-reportar">
+        <label>Tipo
+          <select name="tipo" required>
+            <option value="buraco">Buraco — SEMINFRA</option>
+            <option value="rua">Rua / conservação — SEMINFRA</option>
+            <option value="lixo">Lixo — SEMURB</option>
+            <option value="iluminacao">Iluminação — SEMURB</option>
+            <option value="sinalizacao">Sinalização — SMT</option>
+            <option value="ambiental">Ambiental — SEMMA</option>
+          </select>
+        </label>
+        <label>Descrição <textarea name="descricao" required></textarea></label>
+        <label>Foto <input type="file" name="foto" accept="image/*" /></label>
+        <div id="mapa" class="mapa"></div>
+        <p class="aviso">Arraste o pino ou use o GPS. Se o problema já foi marcado como resolvido e continua, abra uma denúncia nova.</p>
+        <button class="btn btn-rio" type="button" id="gps">Usar minha localização</button>
+        <button class="btn btn-primario" type="submit">Enviar denúncia</button>
+      </form>
+    </section>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import "./js/firebase.js";
+    import { proteger, usuarioAtual } from "./js/auth.js";
+    import { criarMapa, usarMinhaLocalizacao } from "./js/mapa.js";
+    import { criarDenuncia } from "./js/denuncias.js";
+    proteger(["cidadao"], "login.html");
+    const { mapa, marcador } = criarMapa("mapa", { arrastavel: true });
+    document.getElementById("gps").onclick = () => usarMinhaLocalizacao(marcador, mapa);
+    document.getElementById("form-reportar").onsubmit = async (e) => {
+      e.preventDefault();
+      const user = await usuarioAtual();
+      const fd = new FormData(e.target);
+      const { lat, lng } = marcador.getLatLng();
+      const { id, protocolo } = await criarDenuncia({
+        cidadaoId: user.uid,
+        tipo: fd.get("tipo"),
+        descricao: fd.get("descricao"),
+        lat, lng,
+        arquivo: fd.get("foto") && fd.get("foto").size ? fd.get("foto") : null,
+      });
+      location.href = `sucesso.html?id=${id}&protocolo=${encodeURIComponent(protocolo)}`;
+    };
+  </script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

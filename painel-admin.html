@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b5e3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Reporta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/logo.svg" />
+  <title>Admin · Santarém Reporta</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topo">
+    <strong>Painel admin</strong>
+    <nav><button class="link" id="sair">Sair</button></nav>
+  </header>
+  <main class="container">
+    <section class="card">
+      <p>Visão de todas as denúncias, todas as secretarias.</p>
+    </section>
+    <div class="lista" id="lista">Carregando…</div>
+  </main>
+  <script type="module">
+    import "./js/firebase.js";
+    import { proteger, sair } from "./js/auth.js";
+    const { db, collection, getDocs, query, orderBy } = window.SR;
+    proteger(["admin"], "login-servidor.html");
+    document.getElementById("sair").onclick = sair;
+    const snap = await getDocs(query(collection(db, "denuncias"), orderBy("criadoEm", "desc")));
+    document.getElementById("lista").innerHTML = snap.docs.map((docSnap) => {
+      const d = docSnap.data();
+      return `<a class="item" href="detalhe-servidor.html?id=${docSnap.id}">
+        <div><strong>${d.protocolo}</strong><div>${d.secretaria} · ${d.tipo}</div></div>
+        <span class="badge ${d.status}">${d.status}</span>
+      </a>`;
+    }).join("") || "<p>Nenhuma denúncia.</p>";
+  </script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

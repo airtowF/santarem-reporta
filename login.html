@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/logo.svg" />
+    <title>Entrar · Santarém Reporta</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="topo">
+      <strong>Santarém Reporta</strong>
+      <nav><a href="index.html">Início</a></nav>
+    </header>
+    <main class="container">
+      <section class="card" style="max-width: 420px; margin: 24px auto">
+        <h2>Entrar como cidadão</h2>
+        <form id="form-login">
+          <label>E-mail <input type="email" name="email" required /></label>
+          <label
+            >Senha <input type="password" name="senha" required minlength="6"
+          /></label>
+          <button class="btn btn-primario" type="submit">Entrar</button>
+        </form>
+        <hr />
+        <h3>Primeiro acesso</h3>
+        <form id="form-cadastro">
+          <label>Nome <input type="text" name="nome" required /></label>
+          <label>E-mail <input type="email" name="email" required /></label>
+          <label
+            >Senha <input type="password" name="senha" required minlength="6"
+          /></label>
+          <button class="btn btn-ghost" type="submit">Criar conta</button>
+        </form>
+        <p class="aviso" id="erro" hidden></p>
+      </section>
+    </main>
+    <script type="module">
+      import "./js/firebase.js";
+      import { criarPerfil } from "./js/auth.js";
+      const {
+        auth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+      } = window.SR;
+      const erro = document.getElementById("erro");
+      function mostrarErro(e) {
+        const codigo = e?.code || "";
+        erro.hidden = false;
+        if (codigo === "auth/configuration-not-found") {
+          erro.textContent =
+            "Ative Authentication → E-mail/senha no console do Firebase.";
+        } else if (codigo === "auth/email-already-in-use") {
+          erro.textContent =
+            "Este e-mail já tem conta. Use o botão Entrar em cima.";
+        } else if (
+          codigo === "auth/invalid-credential" ||
+          codigo === "auth/wrong-password" ||
+          codigo === "auth/user-not-found"
+        ) {
+          erro.textContent = "E-mail ou senha incorretos.";
+        } else if (codigo === "auth/weak-password") {
+          erro.textContent = "A senha precisa ter pelo menos 6 caracteres.";
+        } else {
+          erro.textContent = e?.message || "Falha no login.";
+        }
+      }
+
+      document.getElementById("form-login").onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const fd = new FormData(e.target);
+          await signInWithEmailAndPassword(
+            auth,
+            fd.get("email"),
+            fd.get("senha"),
+          );
+          location.href = "home.html";
+        } catch (err) {
+          mostrarErro(err);
+        }
+      };
+
+      document.getElementById("form-cadastro").onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const fd = new FormData(e.target);
+          const cred = await createUserWithEmailAndPassword(
+            auth,
+            fd.get("email"),
+            fd.get("senha"),
+          );
+          await criarPerfil(cred.user.uid, {
+            nome: fd.get("nome"),
+            email: fd.get("email"),
+            perfil: "cidadao",
+            secretaria: null,
+          });
+          location.href = "home.html";
+        } catch (err) {
+          mostrarErro(err);
+        }
+      };
+    </script>
+    <script src="js/pwa.js"></script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b5e3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Reporta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/logo.svg" />
+  <title>Denúncia · Santarém Reporta</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <header class="topo">
+    <strong id="titulo">Denúncia</strong>
+    <nav><a href="minhas-denuncias.html">Voltar</a></nav>
+  </header>
+  <main class="container">
+    <section class="card" id="conteudo">Carregando…</section>
+    <div id="mapa" class="mapa" style="margin-top:14px;"></div>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import "./js/firebase.js";
+    import { proteger } from "./js/auth.js";
+    import { criarMapa } from "./js/mapa.js";
+    const { db, doc, getDoc } = window.SR;
+    proteger(["cidadao"], "login.html");
+    const id = new URLSearchParams(location.search).get("id");
+    const snap = await getDoc(doc(db, "denuncias", id));
+    if (!snap.exists()) {
+      document.getElementById("conteudo").textContent = "Denúncia não encontrada.";
+    } else {
+      const d = snap.data();
+      document.getElementById("titulo").textContent = d.protocolo;
+      document.getElementById("conteudo").innerHTML = `
+        <p><span class="badge ${d.status}">${d.status}</span> · ${d.secretaria}</p>
+        ${d.fotoUrl ? `<img src="${d.fotoUrl}" alt="Foto da denúncia" />` : ""}
+        <p>${d.descricao}</p>
+        <a class="btn btn-rio" href="chat.html?id=${id}">Abrir chat</a>
+      `;
+      criarMapa("mapa", { lat: d.lat, lng: d.lng });
+    }
+  </script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

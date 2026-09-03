@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b5e3b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Reporta" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/logo.svg" />
+  <title>Santarém Reporta</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topo">
+    <strong>Santarém Reporta</strong>
+    <nav>
+      <a href="login.html">Cidadão</a>
+      <a href="login-servidor.html">Servidor</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Denuncie problemas urbanos em Santarém</h1>
+      <p>
+        Buraco, lixo, iluminação, sinalização ou dano ambiental.
+        O relato vai direto para a secretaria responsável.
+      </p>
+      <div class="acoes">
+        <a class="btn btn-primario" href="login.html">Entrar como cidadão</a>
+        <a class="btn btn-rio" href="login-servidor.html">Área da prefeitura</a>
+      </div>
+    </section>
+
+    <section class="grade">
+      <article class="card">
+        <h3>SEMINFRA</h3>
+        <p>Buracos, ruas e conservação viária.</p>
+      </article>
+      <article class="card">
+        <h3>SEMURB</h3>
+        <p>Lixo irregular e iluminação pública.</p>
+      </article>
+      <article class="card">
+        <h3>SMT</h3>
+        <p>Sinalização de trânsito.</p>
+      </article>
+      <article class="card">
+        <h3>SEMMA</h3>
+        <p>Denúncias ambientais.</p>
+      </article>
+    </section>
+  </main>
+
+  <p class="rodape">Santarém-PA · denúncias urbanas</p>
+  <script type="module" src="js/firebase.js"></script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

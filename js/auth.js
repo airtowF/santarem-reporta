@@ -1,12 +1,23 @@
 import "./firebase.js";
 
-const { auth, db, doc, getDoc, setDoc, onAuthStateChanged, signOut, serverTimestamp } = window.SR;
+const {
+  auth,
+  db,
+  doc,
+  getDoc,
+  setDoc,
+  onAuthStateChanged,
+  signOut,
+  serverTimestamp,
+} = window.SR;
 
 export async function usuarioAtual() {
   const user = auth.currentUser;
   if (!user) return null;
   const snap = await getDoc(doc(db, "usuarios", user.uid));
-  return snap.exists() ? { uid: user.uid, ...snap.data() } : { uid: user.uid, perfil: null };
+  return snap.exists()
+    ? { uid: user.uid, ...snap.data() }
+    : { uid: user.uid, perfil: null };
 }
 
 export function proteger(perfisPermitidos, destinoLogin) {
@@ -32,7 +43,7 @@ export async function criarPerfil(uid, dados) {
 
 export async function sair() {
   await signOut(auth);
-  location.href = "index.html";
+  location.href = new URL("../../index.html", location.href).href;
 }
 
 window.SRAuth = { usuarioAtual, proteger, criarPerfil, sair };

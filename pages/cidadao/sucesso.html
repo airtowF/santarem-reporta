@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="../../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../../assets/logo.svg" />
+    <title>Protocolo · Santarém Reporta</title>
+    <link rel="stylesheet" href="../../css/styles.css" />
+  </head>
+  <body>
+    <header class="topo"><strong>Denúncia enviada</strong></header>
+    <main class="container">
+      <section
+        class="card"
+        style="max-width: 520px; margin: 24px auto; text-align: center"
+      >
+        <h2>Protocolo gerado</h2>
+        <p class="protocolo" id="protocolo">—</p>
+        <p>
+          Guarde este número. A secretaria recebe o relato com status
+          <strong>pendente</strong>.
+        </p>
+        <div class="acoes" style="justify-content: center">
+          <a class="btn btn-primario" id="ver">Ver denúncia</a>
+          <a class="btn btn-ghost" href="home.html">Início</a>
+        </div>
+      </section>
+    </main>
+    <script>
+      const params = new URLSearchParams(location.search);
+      document.getElementById("protocolo").textContent =
+        params.get("protocolo") || "SR-—";
+      document.getElementById("ver").href =
+        "detalhe.html?id=" + (params.get("id") || "");
+    </script>
+    <script src="../../js/pwa.js"></script>
+  </body>
+</html>

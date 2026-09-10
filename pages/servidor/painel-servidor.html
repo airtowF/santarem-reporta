@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="../../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../../assets/logo.svg" />
+    <title>Painel do servidor · Santarém Reporta</title>
+    <link rel="stylesheet" href="../../css/styles.css" />
+  </head>
+  <body>
+    <header class="topo">
+      <strong id="secretaria">Painel</strong>
+      <nav><button class="link" id="sair">Sair</button></nav>
+    </header>
+    <main class="container">
+      <div class="lista" id="lista">Carregando…</div>
+    </main>
+    <script type="module">
+      import "../../js/firebase.js";
+      import { proteger, usuarioAtual, sair } from "../../js/auth.js";
+      import { listarDaSecretaria } from "../../js/denuncias.js";
+      proteger(["servidor"], "login-servidor.html");
+      document.getElementById("sair").onclick = sair;
+      const user = await usuarioAtual();
+      if (user) {
+        document.getElementById("secretaria").textContent =
+          user.secretaria || "Servidor";
+        const itens = await listarDaSecretaria(user.secretaria);
+        document.getElementById("lista").innerHTML =
+          itens
+            .map(
+              (d) => `
+        <a class="item" href="detalhe-servidor.html?id=${d.id}">
+          <div><strong>${d.protocolo}</strong><div>${d.tipo}</div></div>
+          <span class="badge ${d.status}">${d.status}</span>
+        </a>
+      `,
+            )
+            .join("") || "<p>Nenhuma denúncia nesta secretaria.</p>";
+      }
+    </script>
+    <script src="../../js/pwa.js"></script>
+  </body>
+</html>

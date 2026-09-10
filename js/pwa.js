@@ -1,3 +1,4 @@
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  const sw = location.pathname.includes("/pages/") ? "../../sw.js" : "./sw.js";
+  navigator.serviceWorker.register(sw).catch(() => {});
 }

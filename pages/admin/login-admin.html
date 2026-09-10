@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="../../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../../assets/logo.svg" />
+    <title>Admin · Santarém Reporta</title>
+    <link rel="stylesheet" href="../../css/styles.css" />
+  </head>
+  <body>
+    <header class="topo">
+      <strong>Painel administrativo</strong>
+      <nav><a href="../../index.html">Início</a></nav>
+    </header>
+    <main class="container">
+      <section class="card" style="max-width: 420px; margin: 24px auto">
+        <h2>Login do admin</h2>
+        <p>Visão geral de todas as secretarias e denúncias.</p>
+        <form id="form">
+          <label>E-mail <input type="email" name="email" required /></label>
+          <label>Senha <input type="password" name="senha" required /></label>
+          <button class="btn btn-primario" type="submit">
+            Entrar no dashboard
+          </button>
+        </form>
+        <p class="aviso" id="erro" hidden></p>
+        <p class="aviso">
+          Conta admin nasce no Firebase: Authentication + documento `usuarios`
+          com perfil `admin`.
+        </p>
+      </section>
+    </main>
+    <script type="module">
+      import "../../js/firebase.js";
+      import { usuarioAtual } from "../../js/auth.js";
+      const { auth, signInWithEmailAndPassword, signOut } = window.SR;
+      const erro = document.getElementById("erro");
+      document.getElementById("form").onsubmit = async (e) => {
+        e.preventDefault();
+        erro.hidden = true;
+        try {
+          const fd = new FormData(e.target);
+          await signInWithEmailAndPassword(
+            auth,
+            fd.get("email"),
+            fd.get("senha"),
+          );
+          const user = await usuarioAtual();
+          if (user?.perfil !== "admin") {
+            await signOut(auth);
+            erro.hidden = false;
+            erro.textContent =
+              "Esta conta não é admin. Use a porta do cidadão ou do servidor.";
+            return;
+          }
+          location.href = "painel-admin.html";
+        } catch (err) {
+          erro.hidden = false;
+          erro.textContent = err?.message || "Falha no login.";
+        }
+      };
+    </script>
+    <script src="../../js/pwa.js"></script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="../../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../../assets/logo.svg" />
+    <title>Início · Santarém Reporta</title>
+    <link rel="stylesheet" href="../../css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+  </head>
+  <body>
+    <header class="topo">
+      <strong>Santarém Reporta</strong>
+      <nav>
+        <a href="minhas-denuncias.html">Minhas denúncias</a>
+        <button class="link" id="sair">Sair</button>
+      </nav>
+    </header>
+    <main class="container">
+      <section class="hero">
+        <h1>Mapa da cidade</h1>
+        <p>Veja seus relatos e envie um novo.</p>
+        <div class="acoes">
+          <a class="btn btn-primario" href="reportar.html">Reportar</a>
+          <a class="btn btn-ghost" href="minhas-denuncias.html"
+            >Minhas denúncias</a
+          >
+        </div>
+      </section>
+      <div id="mapa" class="mapa"></div>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+      import "../../js/firebase.js";
+      import { proteger, sair } from "../../js/auth.js";
+      import { criarMapa } from "../../js/mapa.js";
+      proteger(["cidadao"], "login.html");
+      document.getElementById("sair").onclick = sair;
+      criarMapa("mapa");
+    </script>
+    <script src="../../js/pwa.js"></script>
+  </body>
+</html>

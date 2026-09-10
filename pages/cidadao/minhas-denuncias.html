@@ -72,10 +72,18 @@
             .join("") || "<p>Nenhuma denúncia encontrada.</p>";
       }
 
-      const user = await usuarioAtual();
-      if (user) {
-        itens = await listarDoCidadao(user.uid);
-        render();
+      lista.textContent = "Carregando…";
+      try {
+        const user = await usuarioAtual();
+        if (!user) {
+          lista.textContent = "Faça login de novo.";
+        } else {
+          itens = await listarDoCidadao(user.uid);
+          render();
+        }
+      } catch (err) {
+        console.error(err);
+        lista.textContent = "Não deu para carregar. Olhe o console (F12).";
       }
       filtros.onchange = render;
     </script>

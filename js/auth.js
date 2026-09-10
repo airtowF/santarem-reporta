@@ -11,8 +11,21 @@ const {
   serverTimestamp,
 } = window.SR;
 
+export function esperarAuth() {
+  return new Promise((resolve) => {
+    if (auth.currentUser) {
+      resolve(auth.currentUser);
+      return;
+    }
+    const off = onAuthStateChanged(auth, (user) => {
+      off();
+      resolve(user);
+    });
+  });
+}
+
 export async function usuarioAtual() {
-  const user = auth.currentUser;
+  const user = await esperarAuth();
   if (!user) return null;
   const snap = await getDoc(doc(db, "usuarios", user.uid));
   return snap.exists()

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="../../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../../assets/logo.svg" />
+    <title>Criar conta · Santarém Reporta</title>
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/cidadao.css" />
+  </head>
+  <body>
+    <header class="topo">
+      <strong>Santarém Reporta</strong>
+      <nav><a href="login.html">Entrar</a></nav>
+    </header>
+    <main class="container">
+      <section class="card login-box">
+        <h2>Criar conta</h2>
+        <p>Cadastro de cidadão para enviar denúncias.</p>
+        <form id="form-cadastro">
+          <label>Nome <input type="text" name="nome" required /></label>
+          <label>E-mail <input type="email" name="email" required /></label>
+          <label
+            >Senha <input type="password" name="senha" required minlength="6"
+          /></label>
+          <button class="btn btn-primario" type="submit">Criar conta</button>
+        </form>
+        <p class="aviso" id="erro" hidden></p>
+        <p class="login-outras-portas">
+          Já tem conta? <a href="login.html">Entrar</a>
+        </p>
+      </section>
+    </main>
+    <script type="module">
+      import "../../js/firebase.js";
+      import { criarPerfil } from "../../js/auth.js";
+      const { auth, createUserWithEmailAndPassword } = window.SR;
+      const erro = document.getElementById("erro");
+      document.getElementById("form-cadastro").onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const fd = new FormData(e.target);
+          const cred = await createUserWithEmailAndPassword(
+            auth,
+            fd.get("email"),
+            fd.get("senha"),
+          );
+          await criarPerfil(cred.user.uid, {
+            nome: fd.get("nome"),
+            email: fd.get("email"),
+            perfil: "cidadao",
+            secretaria: null,
+          });
+          location.href = "home.html";
+        } catch (err) {
+          const codigo = err?.code || "";
+          erro.hidden = false;
+          if (codigo === "auth/email-already-in-use") {
+            erro.textContent = "Este e-mail já tem conta. Vá em Entrar.";
+          } else if (codigo === "auth/weak-password") {
+            erro.textContent = "A senha precisa ter pelo menos 6 caracteres.";
+          } else {
+            erro.textContent = err?.message || "Falha no cadastro.";
+          }
+        }
+      };
+    </script>
+    <script src="../../js/pwa.js"></script>
+  </body>
+</html>

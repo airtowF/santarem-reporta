@@ -16,10 +16,10 @@
   <body>
     <header class="topo">
       <strong>Santarém Reporta</strong>
-      <nav><a href="../../index.html">Início</a></nav>
+      <nav></nav>
     </header>
     <main class="container">
-      <section class="card" style="max-width: 420px; margin: 24px auto">
+      <section class="card login-box">
         <h2>Entrar como cidadão</h2>
         <form id="form-login">
           <label>E-mail <input type="email" name="email" required /></label>
@@ -28,50 +28,22 @@
           /></label>
           <button class="btn btn-primario" type="submit">Entrar</button>
         </form>
-        <hr />
-        <h3>Primeiro acesso</h3>
-        <form id="form-cadastro">
-          <label>Nome <input type="text" name="nome" required /></label>
-          <label>E-mail <input type="email" name="email" required /></label>
-          <label
-            >Senha <input type="password" name="senha" required minlength="6"
-          /></label>
-          <button class="btn btn-ghost" type="submit">Criar conta</button>
-        </form>
+        <p class="login-outras-portas">
+          Primeiro acesso? <a href="cadastro.html">Criar conta</a>
+        </p>
         <p class="aviso" id="erro" hidden></p>
+        <p class="login-outras-portas">
+          Sou
+          <a href="../servidor/login-servidor.html">Servidor</a>
+          ou
+          <a href="../admin/login-admin.html">Administrador</a>
+        </p>
       </section>
     </main>
     <script type="module">
       import "../../js/firebase.js";
-      import { criarPerfil } from "../../js/auth.js";
-      const {
-        auth,
-        signInWithEmailAndPassword,
-        createUserWithEmailAndPassword,
-      } = window.SR;
+      const { auth, signInWithEmailAndPassword } = window.SR;
       const erro = document.getElementById("erro");
-      function mostrarErro(e) {
-        const codigo = e?.code || "";
-        erro.hidden = false;
-        if (codigo === "auth/configuration-not-found") {
-          erro.textContent =
-            "Ative Authentication → E-mail/senha no console do Firebase.";
-        } else if (codigo === "auth/email-already-in-use") {
-          erro.textContent =
-            "Este e-mail já tem conta. Use o botão Entrar em cima.";
-        } else if (
-          codigo === "auth/invalid-credential" ||
-          codigo === "auth/wrong-password" ||
-          codigo === "auth/user-not-found"
-        ) {
-          erro.textContent = "E-mail ou senha incorretos.";
-        } else if (codigo === "auth/weak-password") {
-          erro.textContent = "A senha precisa ter pelo menos 6 caracteres.";
-        } else {
-          erro.textContent = e?.message || "Falha no login.";
-        }
-      }
-
       document.getElementById("form-login").onsubmit = async (e) => {
         e.preventDefault();
         try {
@@ -83,28 +55,17 @@
           );
           location.href = "home.html";
         } catch (err) {
-          mostrarErro(err);
-        }
-      };
-
-      document.getElementById("form-cadastro").onsubmit = async (e) => {
-        e.preventDefault();
-        try {
-          const fd = new FormData(e.target);
-          const cred = await createUserWithEmailAndPassword(
-            auth,
-            fd.get("email"),
-            fd.get("senha"),
-          );
-          await criarPerfil(cred.user.uid, {
-            nome: fd.get("nome"),
-            email: fd.get("email"),
-            perfil: "cidadao",
-            secretaria: null,
-          });
-          location.href = "home.html";
-        } catch (err) {
-          mostrarErro(err);
+          const codigo = err?.code || "";
+          erro.hidden = false;
+          if (
+            codigo === "auth/invalid-credential" ||
+            codigo === "auth/wrong-password" ||
+            codigo === "auth/user-not-found"
+          ) {
+            erro.textContent = "E-mail ou senha incorretos.";
+          } else {
+            erro.textContent = err?.message || "Falha no login.";
+          }
         }
       };
     </script>

@@ -3,45 +3,166 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="theme-color" content="#1e3a5f" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Reporta" />
     <link rel="manifest" href="../../manifest.webmanifest" />
     <link rel="apple-touch-icon" href="../../assets/logo.svg" />
     <title>Admin · Santarém Reporta</title>
-    <link rel="stylesheet" href="../../css/styles.css" />
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/admin.css" />
   </head>
   <body>
     <header class="topo">
-      <strong>Painel admin</strong>
+      <strong>Dashboard admin</strong>
       <nav><button class="link" id="sair">Sair</button></nav>
     </header>
     <main class="container">
+      <section class="dash-numeros" id="numeros"></section>
+      <section class="dash-secretarias" id="por-secretaria"></section>
+      <section class="grade">
+        <article class="card">
+          <h3>Por status</h3>
+          <canvas id="grafico-status"></canvas>
+        </article>
+        <article class="card">
+          <h3>Por secretaria</h3>
+          <canvas id="grafico-secretaria"></canvas>
+        </article>
+      </section>
       <section class="card">
-        <p>Visão de todas as denúncias, todas as secretarias.</p>
+        <form class="acoes" id="filtros">
+          <select name="status">
+            <option value="">Todos os status</option>
+            <option value="pendente">pendente</option>
+            <option value="em_analise">em_analise</option>
+            <option value="em_andamento">em_andamento</option>
+            <option value="resolvido">resolvido</option>
+          </select>
+          <select name="secretaria">
+            <option value="">Todas as secretarias</option>
+            <option value="SEMINFRA">SEMINFRA</option>
+            <option value="SEMURB">SEMURB</option>
+            <option value="SMT">SMT</option>
+            <option value="SEMMA">SEMMA</option>
+          </select>
+          <select name="tipo">
+            <option value="">Todos os tipos</option>
+            <option value="buraco">buraco</option>
+            <option value="rua">rua</option>
+            <option value="lixo">lixo</option>
+            <option value="iluminacao">iluminacao</option>
+            <option value="sinalizacao">sinalizacao</option>
+            <option value="ambiental">ambiental</option>
+          </select>
+        </form>
       </section>
       <div class="lista" id="lista">Carregando…</div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script type="module">
       import "../../js/firebase.js";
       import { proteger, sair } from "../../js/auth.js";
-      const { db, collection, getDocs, query, orderBy } = window.SR;
+      const { db, collection, getDocs } = window.SR;
       proteger(["admin"], "login-admin.html");
       document.getElementById("sair").onclick = sair;
-      const snap = await getDocs(
-        query(collection(db, "denuncias"), orderBy("criadoEm", "desc")),
-      );
-      document.getElementById("lista").innerHTML =
-        snap.docs
-          .map((docSnap) => {
-            const d = docSnap.data();
-            return `<a class="item" href="../servidor/detalhe-servidor.html?id=${docSnap.id}">
-        <div><strong>${d.protocolo}</strong><div>${d.secretaria} · ${d.tipo}</div></div>
-        <span class="badge ${d.status}">${d.status}</span>
-      </a>`;
-          })
-          .join("") || "<p>Nenhuma denúncia.</p>";
+
+      const snap = await getDocs(collection(db, "denuncias"));
+      const itens = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort(
+          (a, b) =>
+            (b.criadoEm?.toMillis?.() || 0) - (a.criadoEm?.toMillis?.() || 0),
+        );
+
+      const contar = (lista, campo, valor) =>
+        lista.filter((d) => d[campo] === valor).length;
+      const secretarias = ["SEMINFRA", "SEMURB", "SMT", "SEMMA"];
+      const statusLista = [
+        "pendente",
+        "em_analise",
+        "em_andamento",
+        "resolvido",
+      ];
+
+      document.getElementById("numeros").innerHTML = `
+        <article class="dash-card"><small>Total</small><strong>${itens.length}</strong></article>
+        ${statusLista
+          .map(
+            (s) =>
+              `<article class="dash-card ${s}"><small>${s}</small><strong>${contar(itens, "status", s)}</strong></article>`,
+          )
+          .join("")}
+      `;
+      document.getElementById("por-secretaria").innerHTML = secretarias
+        .map(
+          (s) =>
+            `<article class="dash-card"><small>${s}</small><strong>${contar(itens, "secretaria", s)}</strong></article>`,
+        )
+        .join("");
+
+      const valoresStatus = statusLista.map((s) => contar(itens, "status", s));
+      const valoresSec = secretarias.map((s) => contar(itens, "secretaria", s));
+      new Chart(document.getElementById("grafico-status"), {
+        type: "doughnut",
+        data: {
+          labels: statusLista,
+          datasets: [
+            {
+              data: valoresStatus,
+              backgroundColor: ["#c2410c", "#a16207", "#1d4ed8", "#15803d"],
+            },
+          ],
+        },
+        options: { plugins: { legend: { position: "bottom" } } },
+      });
+      new Chart(document.getElementById("grafico-secretaria"), {
+        type: "bar",
+        data: {
+          labels: secretarias,
+          datasets: [
+            {
+              label: "Denúncias",
+              data: valoresSec,
+              backgroundColor: "#0e7490",
+            },
+          ],
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        },
+      });
+
+      const filtros = document.getElementById("filtros");
+      const lista = document.getElementById("lista");
+      function render() {
+        const status = filtros.status.value;
+        const secretaria = filtros.secretaria.value;
+        const tipo = filtros.tipo.value;
+        const filtrados = itens.filter(
+          (d) =>
+            (!status || d.status === status) &&
+            (!secretaria || d.secretaria === secretaria) &&
+            (!tipo || d.tipo === tipo),
+        );
+        lista.innerHTML =
+          filtrados
+            .map(
+              (d) => `
+          <a class="item" href="../servidor/detalhe-servidor.html?id=${d.id}">
+            <div>
+              <strong>${d.protocolo || "sem protocolo"}</strong>
+              <div>${d.secretaria || "—"} · ${d.tipo || "—"}</div>
+            </div>
+            <span class="badge ${d.status}">${d.status}</span>
+          </a>`,
+            )
+            .join("") || "<p>Nenhuma denúncia nesse filtro.</p>";
+      }
+      filtros.onchange = render;
+      render();
     </script>
     <script src="../../js/pwa.js"></script>
   </body>

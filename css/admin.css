@@ -1,3 +1,33 @@
 .topo {
   background: #1e3a5f;
 }
+.dash-numeros,
+.dash-secretarias {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.dash-card {
+  background: #fff;
+  border: 1px solid var(--linha, #e7e5e4);
+  border-radius: 14px;
+  padding: 14px;
+}
+.dash-card small {
+  display: block;
+  color: #57534e;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+.dash-card strong {
+  font-size: 1.6rem;
+}
+.dash-card.pendente strong { color: #c2410c; }
+.dash-card.em_analise strong { color: #a16207; }
+.dash-card.em_andamento strong { color: #1d4ed8; }
+.dash-card.resolvido strong { color: #15803d; }
+#grafico-status,
+#grafico-secretaria {
+  max-height: 260px;
+}

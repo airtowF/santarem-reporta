@@ -36,6 +36,7 @@ export function plotarDenuncias(mapa, denuncias) {
   const pontos = [];
   denuncias.forEach((d) => {
     if (d.lat == null || d.lng == null) return;
+    if (d.status === "resolvido") return;
     const pino = L.marker([d.lat, d.lng]).addTo(mapa);
     pino.bindPopup(
       `<strong>${d.protocolo || ""}</strong><br>${d.tipo} · ${d.status}`,

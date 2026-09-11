@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" content="#1b5e3b" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Reporta" />
@@ -29,7 +29,9 @@
         >
           🔔<span class="home-sino-badge" id="badge-notificacoes" hidden></span>
         </button>
-        <button class="home-avatar" id="sair" title="Sair">A</button>
+        <a class="home-avatar" id="avatar" href="perfil.html" title="Meu perfil"
+          >A</a
+        >
       </div>
     </header>
     <aside class="notificacoes" id="painel-notificacoes">
@@ -48,7 +50,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module">
       import "../../js/firebase.js";
-      import { proteger, usuarioAtual, sair } from "../../js/auth.js";
+      import { proteger, usuarioAtual } from "../../js/auth.js";
       import { criarMapa, plotarDenuncias } from "../../js/mapa.js";
       import { listarDoCidadao } from "../../js/denuncias.js";
       import {
@@ -56,7 +58,6 @@
         marcarLidas,
       } from "../../js/notificacoes.js";
       proteger(["cidadao"], "login.html");
-      document.getElementById("sair").onclick = sair;
       const painel = document.getElementById("painel-notificacoes");
       const listaN = document.getElementById("lista-notificacoes");
       const badge = document.getElementById("badge-notificacoes");
@@ -70,7 +71,7 @@
       setTimeout(() => mapa.invalidateSize(), 200);
       const user = await usuarioAtual();
       if (user?.nome) {
-        document.getElementById("sair").textContent = user.nome
+        document.getElementById("avatar").textContent = user.nome
           .trim()
           .charAt(0)
           .toUpperCase();

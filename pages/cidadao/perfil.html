@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Reporta" />
+    <link rel="manifest" href="../../manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="../../assets/logo.svg" />
+    <title>Perfil · Santarém Reporta</title>
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/cidadao.css" />
+  </head>
+  <body>
+    <header class="topo">
+      <strong>Meu perfil</strong>
+      <nav><a href="home.html">Mapa</a></nav>
+    </header>
+    <main class="container">
+      <section class="card" style="max-width: 420px; margin: 24px auto">
+        <p
+          id="iniciais"
+          class="home-avatar"
+          style="
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          A
+        </p>
+        <p><strong id="nome">—</strong></p>
+        <p
+          id="email"
+          class="aviso"
+          style="background: var(--verde-claro); color: var(--texto-suave)"
+        >
+          —
+        </p>
+        <p>Perfil: <span id="perfil">cidadao</span></p>
+        <form id="form">
+          <label>Nome <input name="nome" required /></label>
+          <button class="btn btn-primario" type="submit">Salvar nome</button>
+        </form>
+        <button
+          class="btn btn-ghost"
+          type="button"
+          id="sair"
+          style="width: 100%; margin-top: 8px"
+        >
+          Sair da conta
+        </button>
+      </section>
+    </main>
+    <script type="module">
+      import "../../js/firebase.js";
+      import { proteger, usuarioAtual, sair } from "../../js/auth.js";
+      const { db, doc, updateDoc } = window.SR;
+      proteger(["cidadao"], "login.html");
+      document.getElementById("sair").onclick = sair;
+      const user = await usuarioAtual();
+      if (user) {
+        const inicial = (user.nome || user.email || "A")
+          .trim()
+          .charAt(0)
+          .toUpperCase();
+        document.getElementById("iniciais").textContent = inicial;
+        document.getElementById("nome").textContent = user.nome || "Sem nome";
+        document.getElementById("email").textContent = user.email || "";
+        document.getElementById("perfil").textContent =
+          user.perfil || "cidadao";
+        document.querySelector("[name=nome]").value = user.nome || "";
+        document.getElementById("form").onsubmit = async (e) => {
+          e.preventDefault();
+          const nome = new FormData(e.target).get("nome").trim();
+          await updateDoc(doc(db, "usuarios", user.uid), { nome });
+          document.getElementById("nome").textContent = nome;
+          document.getElementById("iniciais").textContent = nome
+            .charAt(0)
+            .toUpperCase();
+        };
+      }
+    </script>
+    <script src="../../js/pwa.js"></script>
+  </body>
+</html>

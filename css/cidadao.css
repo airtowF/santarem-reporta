@@ -1,0 +1,142 @@
+.home-app {
+  background: #f4f7fb;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+}
+.home-barra {
+  position: relative;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #fff;
+}
+.home-barra strong {
+  color: var(--azul, #2563eb);
+  font-size: 1.15rem;
+}
+.home-acoes-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.home-sino {
+  position: relative;
+  font-size: 1.15rem;
+  color: var(--azul, #2563eb);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.home-sino-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  line-height: 16px;
+}
+.notificacoes {
+  display: none;
+  position: fixed;
+  top: 56px;
+  right: 12px;
+  width: min(320px, calc(100% - 24px));
+  max-height: 60vh;
+  overflow: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  z-index: 6000;
+  padding: 12px;
+}
+.notificacoes.aberto {
+  display: block;
+}
+.notificacoes-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.notificacoes-topo button {
+  border: 0;
+  background: transparent;
+  color: #2563eb;
+  font: inherit;
+  cursor: pointer;
+}
+.notificacao {
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  color: #1c1917;
+  margin-bottom: 6px;
+  background: #eff6ff;
+}
+.notificacao.lida {
+  background: #f8fafc;
+  color: #57534e;
+}
+.home-avatar {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #1e3a5f;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.home-mapa {
+  height: 42vh;
+  min-height: 180px;
+  max-height: 380px;
+  border: 0;
+  border-radius: 0;
+  background: #cfe8f5;
+}
+.home-dock {
+  display: grid;
+  gap: 12px;
+  padding: 16px 22px 24px;
+  background: #fff;
+  align-content: start;
+}
+.pino-wrap {
+  background: transparent;
+  border: 0;
+}
+.pino {
+  display: block;
+  width: 22px;
+  height: 22px;
+  margin: 4px auto 0;
+  background: var(--pino, #ef4444);
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+.home-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  max-height: 52px;
+  padding: 0 18px;
+  background: var(--azul, #2563eb);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+}

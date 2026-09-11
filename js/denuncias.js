@@ -98,10 +98,20 @@ export async function listarDaSecretaria(secretaria) {
 }
 
 export async function alterarStatus(denunciaId, status, servidorId) {
+  const { getDoc } = window.SR;
+  const atual = await getDoc(doc(db, "denuncias", denunciaId));
+  const dados = atual.exists() ? atual.data() : {};
   await updateDoc(doc(db, "denuncias", denunciaId), {
     status,
     servidorId,
     atualizadoEm: serverTimestamp(),
+  });
+  const { criarNotificacao } = await import("./notificacoes.js");
+  await criarNotificacao({
+    cidadaoId: dados.cidadaoId,
+    denunciaId,
+    tipo: "status",
+    texto: `O protocolo ${dados.protocolo || ""} mudou para ${status}.`,
   });
 }
 

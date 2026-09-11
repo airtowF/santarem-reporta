@@ -10,12 +10,13 @@
     <link rel="manifest" href="../../manifest.webmanifest" />
     <link rel="apple-touch-icon" href="../../assets/logo.svg" />
     <title>Atendimento · Santarém Reporta</title>
-    <link rel="stylesheet" href="../../css/styles.css" />
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/servidor.css" />
   </head>
   <body>
     <header class="topo">
-      <strong>Atendimento</strong>
-      <nav><a href="painel-servidor.html">Fila</a></nav>
+      <strong id="titulo-topo">Atendimento</strong>
+      <nav><a id="voltar-painel" href="painel-servidor.html">Fila</a></nav>
     </header>
     <main class="container">
       <section class="card" id="conteudo">Carregando…</section>
@@ -26,12 +27,20 @@
       import { alterarStatus } from "../../js/denuncias.js";
       const { db, doc, getDoc } = window.SR;
       proteger(["servidor", "admin"], "login-servidor.html");
+      const quem = await usuarioAtual();
+      if (quem?.perfil === "admin") {
+        document.getElementById("titulo-topo").textContent = "Admin · denúncia";
+        document.getElementById("voltar-painel").textContent = "Dashboard";
+        document.getElementById("voltar-painel").href =
+          "../admin/painel-admin.html";
+      }
       const id = new URLSearchParams(location.search).get("id");
       const snap = await getDoc(doc(db, "denuncias", id));
       const d = snap.data();
       document.getElementById("conteudo").innerHTML = `
       <p><strong>${d.protocolo}</strong> · ${d.secretaria}</p>
       ${d.fotoUrl ? `<img src="${d.fotoUrl}" alt="" />` : ""}
+      ${d.endereco ? `<p>${d.endereco}</p>` : ""}
       <p>${d.descricao}</p>
       <form id="status">
         <label>Status

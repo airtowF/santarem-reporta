@@ -10,7 +10,8 @@
     <link rel="manifest" href="../../manifest.webmanifest" />
     <link rel="apple-touch-icon" href="../../assets/logo.svg" />
     <title>Reportar · Santarém Reporta</title>
-    <link rel="stylesheet" href="../../css/styles.css" />
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/cidadao.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -39,6 +40,15 @@
             >Descrição <textarea name="descricao" required></textarea>
           </label>
           <label>Foto <input type="file" name="foto" accept="image/*" /></label>
+          <label
+            >Endereço
+            <input
+              type="text"
+              name="endereco"
+              id="endereco"
+              placeholder="Arraste o pino ou use o GPS"
+            />
+          </label>
           <div id="mapa" class="mapa"></div>
           <p class="aviso">
             Arraste o pino ou use o GPS. Se o problema já foi marcado como
@@ -50,6 +60,7 @@
           <button class="btn btn-primario" type="submit">
             Enviar denúncia
           </button>
+          <p class="aviso" id="erro" hidden></p>
         </form>
       </section>
     </main>
@@ -57,27 +68,53 @@
     <script type="module">
       import "../../js/firebase.js";
       import { proteger, usuarioAtual } from "../../js/auth.js";
-      import { criarMapa, usarMinhaLocalizacao } from "../../js/mapa.js";
+      import {
+        criarMapa,
+        usarMinhaLocalizacao,
+        buscarEndereco,
+      } from "../../js/mapa.js";
       import { criarDenuncia } from "../../js/denuncias.js";
       proteger(["cidadao"], "login.html");
       const { mapa, marcador } = criarMapa("mapa", { arrastavel: true });
-      document.getElementById("gps").onclick = () =>
-        usarMinhaLocalizacao(marcador, mapa);
+      const campoEndereco = document.getElementById("endereco");
+      async function preencherEndereco() {
+        const { lat, lng } = marcador.getLatLng();
+        campoEndereco.placeholder = "Buscando endereço…";
+        const nome = await buscarEndereco(lat, lng).catch(() => null);
+        if (nome) campoEndereco.value = nome;
+        campoEndereco.placeholder = "Rua, bairro, referência";
+      }
+      preencherEndereco();
+      marcador.on("dragend", preencherEndereco);
+      document.getElementById("gps").onclick = async () => {
+        await usarMinhaLocalizacao(marcador, mapa);
+        await preencherEndereco();
+      };
+      const erro = document.getElementById("erro");
       document.getElementById("form-reportar").onsubmit = async (e) => {
         e.preventDefault();
-        const user = await usuarioAtual();
-        const fd = new FormData(e.target);
-        const { lat, lng } = marcador.getLatLng();
-        const { id, protocolo } = await criarDenuncia({
-          cidadaoId: user.uid,
-          tipo: fd.get("tipo"),
-          descricao: fd.get("descricao"),
-          lat,
-          lng,
-          arquivo:
-            fd.get("foto") && fd.get("foto").size ? fd.get("foto") : null,
-        });
-        location.href = `sucesso.html?id=${id}&protocolo=${encodeURIComponent(protocolo)}`;
+        erro.hidden = true;
+        try {
+          const user = await usuarioAtual();
+          const fd = new FormData(e.target);
+          const { lat, lng } = marcador.getLatLng();
+          const { id, protocolo } = await criarDenuncia({
+            cidadaoId: user.uid,
+            tipo: fd.get("tipo"),
+            descricao: fd.get("descricao"),
+            lat,
+            lng,
+            endereco: fd.get("endereco") || null,
+            arquivo:
+              fd.get("foto") && fd.get("foto").size ? fd.get("foto") : null,
+          });
+          location.href = `sucesso.html?id=${id}&protocolo=${encodeURIComponent(protocolo)}`;
+        } catch (err) {
+          console.error(err);
+          erro.hidden = false;
+          erro.textContent =
+            "Falha no envio. Se escolheu foto, ative o Storage no Firebase (modo teste) ou envie sem foto para testar o resto.";
+        }
       };
     </script>
     <script src="../../js/pwa.js"></script>

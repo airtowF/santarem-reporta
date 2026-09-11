@@ -10,7 +10,8 @@
     <link rel="manifest" href="../../manifest.webmanifest" />
     <link rel="apple-touch-icon" href="../../assets/logo.svg" />
     <title>Denúncia · Santarém Reporta</title>
-    <link rel="stylesheet" href="../../css/styles.css" />
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/cidadao.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -43,6 +44,7 @@
         document.getElementById("conteudo").innerHTML = `
         <p><span class="badge ${d.status}">${d.status}</span> · ${d.secretaria}</p>
         ${d.fotoUrl ? `<img src="${d.fotoUrl}" alt="Foto da denúncia" />` : ""}
+        ${d.endereco ? `<p>${d.endereco}</p>` : ""}
         <p>${d.descricao}</p>
         <a class="btn btn-rio" href="chat.html?id=${id}">Abrir chat</a>
       `;

@@ -3,48 +3,117 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1b5e3b" />
+    <meta name="theme-color" content="#2563eb" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Reporta" />
     <link rel="manifest" href="../../manifest.webmanifest" />
     <link rel="apple-touch-icon" href="../../assets/logo.svg" />
     <title>Início · Santarém Reporta</title>
-    <link rel="stylesheet" href="../../css/styles.css" />
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/cidadao.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
   </head>
-  <body>
-    <header class="topo">
+  <body class="home-app">
+    <header class="home-barra">
       <strong>Santarém Reporta</strong>
-      <nav>
-        <a href="minhas-denuncias.html">Minhas denúncias</a>
-        <button class="link" id="sair">Sair</button>
-      </nav>
+      <div class="home-acoes-topo">
+        <button
+          class="home-sino"
+          id="abrir-notificacoes"
+          type="button"
+          title="Notificações"
+        >
+          🔔<span class="home-sino-badge" id="badge-notificacoes" hidden></span>
+        </button>
+        <button class="home-avatar" id="sair" title="Sair">A</button>
+      </div>
     </header>
-    <main class="container">
-      <section class="hero">
-        <h1>Mapa da cidade</h1>
-        <p>Veja seus relatos e envie um novo.</p>
-        <div class="acoes">
-          <a class="btn btn-primario" href="reportar.html">Reportar</a>
-          <a class="btn btn-ghost" href="minhas-denuncias.html"
-            >Minhas denúncias</a
-          >
-        </div>
-      </section>
-      <div id="mapa" class="mapa"></div>
-    </main>
+    <aside class="notificacoes" id="painel-notificacoes">
+      <div class="notificacoes-topo">
+        <strong>Notificações</strong>
+        <button type="button" id="fechar-notificacoes">Fechar</button>
+      </div>
+      <div id="lista-notificacoes">Carregando…</div>
+    </aside>
+    <div id="mapa" class="home-mapa"></div>
+    <nav class="home-dock">
+      <a class="home-pill" href="reportar.html">+ Reportar Problema</a>
+      <a class="home-pill" href="minhas-denuncias.html">△ Minhas Denúncias</a>
+      <a class="home-pill" href="../../index.html">☎ Outros Canais</a>
+    </nav>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module">
       import "../../js/firebase.js";
-      import { proteger, sair } from "../../js/auth.js";
-      import { criarMapa } from "../../js/mapa.js";
+      import { proteger, usuarioAtual, sair } from "../../js/auth.js";
+      import { criarMapa, plotarDenuncias } from "../../js/mapa.js";
+      import { listarDoCidadao } from "../../js/denuncias.js";
+      import {
+        listarNotificacoes,
+        marcarLidas,
+      } from "../../js/notificacoes.js";
       proteger(["cidadao"], "login.html");
       document.getElementById("sair").onclick = sair;
-      criarMapa("mapa");
+      const painel = document.getElementById("painel-notificacoes");
+      const listaN = document.getElementById("lista-notificacoes");
+      const badge = document.getElementById("badge-notificacoes");
+      document.getElementById("abrir-notificacoes").onclick = () => {
+        painel.classList.toggle("aberto");
+      };
+      document.getElementById("fechar-notificacoes").onclick = () => {
+        painel.classList.remove("aberto");
+      };
+      const { mapa } = criarMapa("mapa", { comMarcador: false });
+      setTimeout(() => mapa.invalidateSize(), 200);
+      const user = await usuarioAtual();
+      if (user?.nome) {
+        document.getElementById("sair").textContent = user.nome
+          .trim()
+          .charAt(0)
+          .toUpperCase();
+      }
+      async function carregarNotificacoes() {
+        if (!user) return [];
+        try {
+          const notas = await listarNotificacoes(user.uid);
+          const novas = notas.filter((n) => !n.lida).length;
+          badge.hidden = novas === 0;
+          badge.textContent = novas > 9 ? "9+" : String(novas);
+          listaN.innerHTML = notas.length
+            ? notas
+                .map((n) => {
+                  const href =
+                    n.tipo === "chat"
+                      ? `chat.html?id=${n.denunciaId}`
+                      : `detalhe.html?id=${n.denunciaId}`;
+                  return `<a class="notificacao ${n.lida ? "lida" : ""}" href="${href}">${n.texto}</a>`;
+                })
+                .join("")
+            : "<p>Nenhuma notificação ainda.</p>";
+          return notas;
+        } catch (err) {
+          console.error(err);
+          listaN.textContent = "Não deu para carregar as notificações.";
+          return [];
+        }
+      }
+      const abrir = document.getElementById("abrir-notificacoes");
+      abrir.onclick = async () => {
+        painel.classList.toggle("aberto");
+        if (painel.classList.contains("aberto")) {
+          const notas = await carregarNotificacoes();
+          await marcarLidas(notas).catch(() => {});
+          badge.hidden = true;
+        }
+      };
+      if (user) {
+        const itens = await listarDoCidadao(user.uid);
+        plotarDenuncias(mapa, itens);
+        await carregarNotificacoes();
+      }
     </script>
     <script src="../../js/pwa.js"></script>
   </body>

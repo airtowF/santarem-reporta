@@ -40,6 +40,18 @@ export async function enviarMensagem({
     texto,
     criadoEm: serverTimestamp(),
   });
+  if (autorPerfil === "servidor" || autorPerfil === "admin") {
+    const { getDoc, doc } = window.SR;
+    const snap = await getDoc(doc(db, "denuncias", denunciaId));
+    const dados = snap.exists() ? snap.data() : {};
+    const { criarNotificacao } = await import("./notificacoes.js");
+    await criarNotificacao({
+      cidadaoId: dados.cidadaoId,
+      denunciaId,
+      tipo: "chat",
+      texto: `Nova mensagem no protocolo ${dados.protocolo || ""}.`,
+    });
+  }
 }
 
 window.SRChat = { ouvirMensagens, enviarMensagem };

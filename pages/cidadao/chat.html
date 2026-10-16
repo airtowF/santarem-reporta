@@ -37,7 +37,10 @@
       const msgs = document.getElementById("msgs");
       ouvirMensagens(id, (lista) => {
         msgs.innerHTML = lista
-          .map((m) => `<div class="msg ${m.autorPerfil}">${m.texto}</div>`)
+          .map(
+            (m) =>
+              `<div class="msg ${m.autorPerfil}"><small>${m.autorPerfil}</small><div>${m.texto}</div></div>`,
+          )
           .join("");
       });
       document.getElementById("form").onsubmit = async (e) => {

@@ -119,6 +119,7 @@ export async function alterarStatus(denunciaId, status, servidorId, fotoConserto
       status === "resolvido"
         ? `O protocolo ${dados.protocolo || ""} foi resolvido. Veja a foto do conserto.`
         : `O protocolo ${dados.protocolo || ""} mudou para ${status}.`,
+    para: "cidadao",
   });
 }
 

@@ -1,3 +1,82 @@
 .topo {
   background: #0e7490;
 }
+
+.topo nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-sino {
+  position: relative;
+  font-size: 1.15rem;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.home-sino-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--alerta);
+  color: #fff;
+  font-size: 0.65rem;
+  line-height: 16px;
+}
+
+.notificacoes {
+  display: none;
+  position: fixed;
+  top: 56px;
+  right: 12px;
+  width: min(320px, calc(100% - 24px));
+  max-height: 60vh;
+  overflow: auto;
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  z-index: 6000;
+  padding: 12px;
+}
+
+.notificacoes.aberto {
+  display: block;
+}
+
+.notificacoes-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.notificacoes-topo button {
+  border: 0;
+  background: transparent;
+  color: var(--rio);
+  font: inherit;
+  cursor: pointer;
+}
+
+.notificacao {
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  color: var(--texto);
+  margin-bottom: 6px;
+  background: #e0f2fe;
+  text-decoration: none;
+}
+
+.notificacao.lida {
+  background: var(--areia);
+  color: var(--texto-suave);
+}

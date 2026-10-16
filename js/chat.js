@@ -50,6 +50,21 @@ export async function enviarMensagem({
       denunciaId,
       tipo: "chat",
       texto: `Nova mensagem no protocolo ${dados.protocolo || ""}.`,
+      para: "cidadao",
+    });
+  }
+  if (autorPerfil === "cidadao") {
+    const { getDoc, doc } = window.SR;
+    const snap = await getDoc(doc(db, "denuncias", denunciaId));
+    const dados = snap.exists() ? snap.data() : {};
+    const { criarNotificacao } = await import("./notificacoes.js");
+    await criarNotificacao({
+      cidadaoId: dados.cidadaoId,
+      denunciaId,
+      tipo: "chat",
+      texto: `Nova mensagem do cidadão no protocolo ${dados.protocolo || ""}.`,
+      para: "servidor",
+      secretaria: dados.secretaria,
     });
   }
 }

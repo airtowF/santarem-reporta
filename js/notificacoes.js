@@ -12,13 +12,23 @@ const {
   serverTimestamp,
 } = window.SR;
 
-export async function criarNotificacao({ cidadaoId, denunciaId, tipo, texto }) {
-  if (!cidadaoId) return;
+export async function criarNotificacao({
+  cidadaoId,
+  denunciaId,
+  tipo,
+  texto,
+  para = "cidadao",
+  secretaria = null,
+}) {
+  if (para === "cidadao" && !cidadaoId) return;
+  if (para === "servidor" && !secretaria) return;
   await addDoc(collection(db, "notificacoes"), {
-    cidadaoId,
+    cidadaoId: cidadaoId || null,
     denunciaId: denunciaId || null,
     tipo,
     texto,
+    para,
+    secretaria,
     lida: false,
     criadoEm: serverTimestamp(),
   });
@@ -27,6 +37,23 @@ export async function criarNotificacao({ cidadaoId, denunciaId, tipo, texto }) {
 export async function listarNotificacoes(cidadaoId) {
   const snap = await getDocs(
     query(collection(db, "notificacoes"), where("cidadaoId", "==", cidadaoId)),
+  );
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((n) => n.para !== "servidor")
+    .sort(
+      (a, b) =>
+        (b.criadoEm?.toMillis?.() || 0) - (a.criadoEm?.toMillis?.() || 0),
+    );
+}
+
+export async function listarNotificacoesServidor(secretaria) {
+  const snap = await getDocs(
+    query(
+      collection(db, "notificacoes"),
+      where("para", "==", "servidor"),
+      where("secretaria", "==", secretaria),
+    ),
   );
   return snap.docs
     .map((d) => ({ id: d.id, ...d.data() }))
@@ -44,4 +71,9 @@ export async function marcarLidas(lista) {
   );
 }
 
-window.SRNotificacoes = { criarNotificacao, listarNotificacoes, marcarLidas };
+window.SRNotificacoes = {
+  criarNotificacao,
+  listarNotificacoes,
+  listarNotificacoesServidor,
+  marcarLidas,
+};

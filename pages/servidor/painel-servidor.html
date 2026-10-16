@@ -16,8 +16,20 @@
   <body>
     <header class="topo">
       <strong id="secretaria">Painel</strong>
-      <nav><button class="link" id="sair">Sair</button></nav>
+      <nav>
+        <button class="home-sino" id="abrir-notificacoes" type="button" title="Notificações">
+          🔔<span class="home-sino-badge" id="badge-notificacoes" hidden></span>
+        </button>
+        <button class="link" id="sair">Sair</button>
+      </nav>
     </header>
+    <aside class="notificacoes" id="painel-notificacoes">
+      <div class="notificacoes-topo">
+        <strong>Notificações</strong>
+        <button type="button" id="fechar-notificacoes">Fechar</button>
+      </div>
+      <div id="lista-notificacoes">Carregando…</div>
+    </aside>
     <main class="container">
       <div class="lista" id="lista">Carregando…</div>
     </main>
@@ -25,12 +37,51 @@
       import "../../js/firebase.js";
       import { proteger, usuarioAtual, sair } from "../../js/auth.js";
       import { listarDaSecretaria } from "../../js/denuncias.js";
+      import {
+        listarNotificacoesServidor,
+        marcarLidas,
+      } from "../../js/notificacoes.js";
       proteger(["servidor"], "login-servidor.html");
       document.getElementById("sair").onclick = sair;
+      const painel = document.getElementById("painel-notificacoes");
+      const listaN = document.getElementById("lista-notificacoes");
+      const badge = document.getElementById("badge-notificacoes");
+      document.getElementById("fechar-notificacoes").onclick = () =>
+        painel.classList.remove("aberto");
       const user = await usuarioAtual();
+      async function carregarNotas() {
+        if (!user?.secretaria) return [];
+        try {
+          const notas = await listarNotificacoesServidor(user.secretaria);
+          const novas = notas.filter((n) => !n.lida).length;
+          badge.hidden = novas === 0;
+          badge.textContent = novas > 9 ? "9+" : String(novas);
+          listaN.innerHTML =
+            notas
+              .map(
+                (n) =>
+                  `<a class="notificacao ${n.lida ? "lida" : ""}" href="chat-servidor.html?id=${n.denunciaId}">${n.texto}</a>`,
+              )
+              .join("") || "<p>Nenhuma notificação.</p>";
+          return notas;
+        } catch (err) {
+          console.error(err);
+          listaN.textContent = "Não deu para carregar as notificações.";
+          return [];
+        }
+      }
+      document.getElementById("abrir-notificacoes").onclick = async () => {
+        painel.classList.toggle("aberto");
+        if (painel.classList.contains("aberto")) {
+          const notas = await carregarNotas();
+          await marcarLidas(notas).catch(() => {});
+          badge.hidden = true;
+        }
+      };
       if (user) {
         document.getElementById("secretaria").textContent =
           user.secretaria || "Servidor";
+        await carregarNotas();
         const itens = await listarDaSecretaria(user.secretaria);
         document.getElementById("lista").innerHTML =
           itens

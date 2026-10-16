@@ -42,24 +42,47 @@
       ${d.fotoUrl ? `<img src="${d.fotoUrl}" alt="" />` : ""}
       ${d.endereco ? `<p>${d.endereco}</p>` : ""}
       <p>${d.descricao}</p>
+      ${d.fotoConsertoUrl ? `<p><strong>Foto do conserto</strong></p><img src="${d.fotoConsertoUrl}" alt="Foto do conserto" />` : ""}
       <form id="status">
         <label>Status
-          <select name="status">
+          <select name="status" id="select-status">
             <option value="pendente">pendente</option>
             <option value="em_analise">em_analise</option>
             <option value="em_andamento">em_andamento</option>
             <option value="resolvido">resolvido</option>
           </select>
         </label>
+        <label id="campo-conserto" hidden>
+          Foto do conserto
+          <input type="file" name="fotoConserto" accept="image/*" />
+        </label>
         <button class="btn btn-primario" type="submit">Atualizar status</button>
       </form>
+      <p class="aviso" id="erro-status" hidden></p>
       <p><a class="btn btn-rio" href="chat-servidor.html?id=${id}">Abrir chat</a></p>
     `;
       document.querySelector("[name=status]").value = d.status;
+      const campoConserto = document.getElementById("campo-conserto");
+      const selectStatus = document.getElementById("select-status");
+      const erroStatus = document.getElementById("erro-status");
+      function atualizarCampoFoto() {
+        campoConserto.hidden = selectStatus.value !== "resolvido";
+      }
+      selectStatus.onchange = atualizarCampoFoto;
+      atualizarCampoFoto();
       document.getElementById("status").onsubmit = async (e) => {
         e.preventDefault();
+        erroStatus.hidden = true;
         const user = await usuarioAtual();
-        await alterarStatus(id, new FormData(e.target).get("status"), user.uid);
+        const fd = new FormData(e.target);
+        const status = fd.get("status");
+        const foto = fd.get("fotoConserto");
+        if (status === "resolvido" && !(foto && foto.size)) {
+          erroStatus.hidden = false;
+          erroStatus.textContent = "Para marcar resolvido, envie a foto do conserto.";
+          return;
+        }
+        await alterarStatus(id, status, user.uid, status === "resolvido" ? foto : null);
         location.reload();
       };
     </script>

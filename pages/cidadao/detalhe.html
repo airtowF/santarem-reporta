@@ -43,7 +43,8 @@
         document.getElementById("titulo").textContent = d.protocolo;
         document.getElementById("conteudo").innerHTML = `
         <p><span class="badge ${d.status}">${d.status}</span> · ${d.secretaria}</p>
-        ${d.fotoUrl ? `<img src="${d.fotoUrl}" alt="Foto da denúncia" />` : ""}
+        ${d.fotoUrl ? `<p><strong>Antes</strong></p><img src="${d.fotoUrl}" alt="Foto da denúncia" />` : ""}
+        ${d.fotoConsertoUrl ? `<p><strong>Depois (conserto)</strong></p><img src="${d.fotoConsertoUrl}" alt="Foto do conserto" />` : ""}
         ${d.endereco ? `<p>${d.endereco}</p>` : ""}
         <p>${d.descricao}</p>
         <a class="btn btn-rio" href="chat.html?id=${id}">Abrir chat</a>

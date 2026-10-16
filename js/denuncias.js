@@ -97,21 +97,28 @@ export async function listarDaSecretaria(secretaria) {
   return ordenarPorData(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
 }
 
-export async function alterarStatus(denunciaId, status, servidorId) {
+export async function alterarStatus(denunciaId, status, servidorId, fotoConserto) {
   const { getDoc } = window.SR;
   const atual = await getDoc(doc(db, "denuncias", denunciaId));
   const dados = atual.exists() ? atual.data() : {};
-  await updateDoc(doc(db, "denuncias", denunciaId), {
+  const payload = {
     status,
     servidorId,
     atualizadoEm: serverTimestamp(),
-  });
+  };
+  if (status === "resolvido" && fotoConserto) {
+    payload.fotoConsertoUrl = await comprimirFoto(fotoConserto);
+  }
+  await updateDoc(doc(db, "denuncias", denunciaId), payload);
   const { criarNotificacao } = await import("./notificacoes.js");
   await criarNotificacao({
     cidadaoId: dados.cidadaoId,
     denunciaId,
     tipo: "status",
-    texto: `O protocolo ${dados.protocolo || ""} mudou para ${status}.`,
+    texto:
+      status === "resolvido"
+        ? `O protocolo ${dados.protocolo || ""} foi resolvido. Veja a foto do conserto.`
+        : `O protocolo ${dados.protocolo || ""} mudou para ${status}.`,
   });
 }
 
